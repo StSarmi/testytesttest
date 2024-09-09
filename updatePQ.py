@@ -33,6 +33,12 @@ from state import Variables, State
 
 async def main():
         state_manager = State()
+        readContactors()
+        readBattery()
+        readXtenders()
+        readCurrentIn()
+        readCurrentOut()
+        readPowerLimit()
         while True:
             try:
                 tidStart = time.time()
