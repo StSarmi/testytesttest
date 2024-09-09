@@ -519,7 +519,7 @@ def readpowerLimit():
 	except:
 		powerLimit = 'Unavailable'
 
-        try:
+	try:
                 frameInfo = userInfo(1,3017)            # make a frame format, 3017 is read parameter for max current from grid
                 data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
                 if (len(data) == floatLength):
