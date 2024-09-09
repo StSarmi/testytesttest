@@ -29,7 +29,7 @@ from modbusClient import holdingReg, coil
 from readStatus import readTransfer 
 """
 from elsinPQ import readbatteryValues as readBattery, xtenders as readXtenders, contactors as readContactors, readcurrentIn, readcurrentOut, readpowerLimit
-from State import Variables, State
+from state import Variables, State
 
 async def main():
         state_manager = State()
