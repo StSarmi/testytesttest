@@ -27,7 +27,7 @@ from scomFrame import checksum, bytearray_to_string, string_to_bytearray
 from modbusClient import holdingReg, coil
 from readStatus import readTransfer 
 """
-from elsinPQ import readbatteryValues as readBattery, xtenders as readXtenders, contactors as readContactors, readcurrentIn, readPowerLimit
+from elsinPQ import readbatteryValues as readBattery, xtenders as readXtenders, contactors as readContactors, readcurrentIn, readcurrentOut, readpowerLimit
 
 async def main():
         state_manager = State()
