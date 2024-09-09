@@ -15,7 +15,7 @@
 #	Monitored parameters are imported from elsinPQ.py with
 ###########################################################################################################
 
-import asyncio
+import asyncio, time
 import sys,json
 sys.path.append("/home/openhabian/.local/lib/python2.7/site-packages")
 """
