@@ -527,10 +527,10 @@ def readpowerLimit():
                         powerLimitV1 = struct.unpack('f', str(value_bytearray))[0]
                         if ((powerLimitV1 > 50)|(powerLimitV1 < 0)): # settings prevent higher values
                                 powerLimit1 = 'Unavailable'      # oppress impossible values
-        except:
+	except:
                 powerLimitV1 = 'Unavailable'
 
-        try:
+	try:
                 frameInfo = userInfo(2,3017)            # make a frame format, 3017 is read parameter for max current from grid
                 data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
                 if (len(data) == floatLength):
@@ -538,7 +538,7 @@ def readpowerLimit():
                         powerLimitV2 = struct.unpack('f', str(value_bytearray))[0]
                         if ((powerLimitV2 > 50)|(powerLimitV2 < 0)): # settings prevent higher values
                                 powerLimitV2 = 'Unavailable'      # oppress impossible values
-        except:
+	except:
                 powerLimitV2 = 'Unavailable'
 
 	return '{"unit":"Xtender", "powerLimit":'+str(powerLimit)+', "powerLimitV1":'+str(powerLimitV1)+', "powerLimitV2":'+str(powerLimitV2)+'}'
