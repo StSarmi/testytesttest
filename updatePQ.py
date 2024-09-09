@@ -27,7 +27,7 @@ from scomFrame import checksum, bytearray_to_string, string_to_bytearray
 from modbusClient import holdingReg, coil
 from readStatus import readTransfer 
 """
-from elsinPQ import readbatteryValues as readBattery, xtenders as readXtenders, contactors as readContactors, readcurrentIn, readCurrentOut, readPowerLimit
+from elsinPQ import readbatteryValues as readBattery, xtenders as readXtenders, contactors as readContactors, readcurrentIn, """readCurrentOut,""" readPowerLimit
 
 async def main():
         state_manager = State()
@@ -39,7 +39,7 @@ async def main():
                     state_manager.set_variable(Variables.battery1Values, readBattery())
                     state_manager.set_variable(Variables.xtenderValues, readXtenders())
                     state_manager.set_variable(Variables.currentInValues, readCurrentIn())
-                    state_manager.set_variable(Variables.currentOutValues, readCurrentOut())
+                    #state_manager.set_variable(Variables.currentOutValues, readCurrentOut())
                     state_manager.set_variable(Variables.powerLimit, readPowerLimit())
                                                
                 except:
