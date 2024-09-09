@@ -27,5 +27,30 @@ from scomFrame import checksum, bytearray_to_string, string_to_bytearray
 from modbusClient import holdingReg, coil
 from readStatus import readTransfer 
 """
-from elsinPQ import readBatteryValues, xtenders, contactors, readCurrentIn, readCurrentOut, readPowerLimit
+from elsinPQ import readBatteryValues as readBattery, xtenders as readXtenders, contactors as readContactors, readCurrentIn, readCurrentOut, readPowerLimit
 
+async def main():
+        state_manager = State()
+        while True:
+            try:
+                tidStart = time.time()
+                try:
+                    state_manager.set_variable(Variables.contactorStatus, readContactors())
+                    state_manager.set_variable(Variables.battery1Values, readBattery())
+                    state_manager.set_variable(Variables.xtenderValues, readXtenders())
+                    state_manager.set_variable(Variables.currentInValues, readCurrentIn())
+                    state_manager.set_variable(Variables.currentOutValues, readCurrentOut())
+                    state_manager.set_variable(Variables.powerLimit, readPowerLimit())
+                                               
+                except:
+                    print (" - feil ved skriving til db -xtenderValues")
+                    pass
+                #mellomTid = time.time()
+                print(f'\r\n\t-Avlesning av utstyr tok {time.time()-tidStart:.2f} sekunder\r\n')
+
+                await asyncio.sleep(8.5)
+            except KeyboardInterrupt:
+                break
+
+if __name__ == "__main__":
+    asyncio.run(main())
