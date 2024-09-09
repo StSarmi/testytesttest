@@ -36,12 +36,12 @@ import sys,json
 sys.path.append("/home/openhabian/.local/lib/python2.7/site-packages")
 import socket, select, struct, serial, time, re, sys, os, binascii, flask
 #from studerCtrl import levelOnly, int32Type, floatType, boolType, enumType, writeList
-import studerCtrl       # henter levelOnly, Int32Type, floatType, boolType, enumType, writeList, specialBool, acceptScada, floatLength og mode
-from studerCtrl import parameterId as userInfo, readparameterId as readUserInfo
-from studerCtrl import makeProperty, parameterId, readparameterId, checkMode
-from scomFrame import checksum, bytearray_to_string, string_to_bytearray
-from modbusClient import holdingReg, coil
-from readStatus import readTransfer 
+#import studerCtrl       # henter levelOnly, Int32Type, floatType, boolType, enumType, writeList, specialBool, acceptScada, floatLength og mode
+#from studerCtrl import parameterId as userInfo, readparameterId as readUserInfo
+#from studerCtrl import makeProperty, parameterId, readparameterId, checkMode
+#from scomFrame import checksum, bytearray_to_string, string_to_bytearray
+#from modbusClient import holdingReg, coil
+#from readStatus import readTransfer 
 
 # global variables for use when illegal values are read. LastBatterypower should not be used too many times before an alerm is issued!! 
 lastBatteryvoltage	= 'NA'
