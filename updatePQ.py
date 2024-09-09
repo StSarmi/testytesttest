@@ -39,7 +39,7 @@ async def main():
                     state_manager.set_variable(Variables.battery1Values, readBattery())
                     state_manager.set_variable(Variables.xtenderValues, readXtenders())
                     state_manager.set_variable(Variables.currentInValues, readCurrentIn())
-                    #state_manager.set_variable(Variables.currentOutValues, readCurrentOut())
+                    state_manager.set_variable(Variables.currentOutValues, readCurrentOut())
                     state_manager.set_variable(Variables.powerLimit, readPowerLimit())
                                                
                 except:
