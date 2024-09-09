@@ -506,8 +506,8 @@ def readpowerOut():
 @app.route('/powerLimit')
 def readpowerLimit():
 	powerLimit = 'Unavailable'
-        powerLimitV1 = 'Unavailable'
-        powerLimitV2 = 'Unavailable'
+	powerLimitV1 = 'Unavailable'
+	powerLimitV2 = 'Unavailable'
 	try:
 		frameInfo = userInfo(0,3017)            # make a frame format, 3017 is read parameter for max current from grid
 		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
