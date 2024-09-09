@@ -1,4 +1,3 @@
-from tkinter import Variable
 import redis
 from enum import Enum
 
