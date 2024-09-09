@@ -104,4 +104,4 @@ if __name__ == "__main__":
 
     state_manager.add_change_listener(Variables.xtenderValues, func)
 
-    state_manager.set_variable(Variables.xtenderValues, "hei hei")
+    state_manager.set_variable(Variables.xtenderValues, "HeiHei Hei")
