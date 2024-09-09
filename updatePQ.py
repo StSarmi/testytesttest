@@ -33,7 +33,7 @@ from state import Variables, State
 
 async def main():
         state_manager = State()
-        readContactors()
+        #readContactors()
         readBattery()
         readXtenders()
         readCurrentIn()
