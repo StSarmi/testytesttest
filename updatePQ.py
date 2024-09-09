@@ -40,9 +40,9 @@ async def main():
                     state_manager.set_variable(Variables.contactorStatus, readContactors())
                     state_manager.set_variable(Variables.battery1Values, readBattery())
                     state_manager.set_variable(Variables.xtenderValues, readXtenders())
-                    state_manager.set_variable(Variables.currentInValues, readCurrentIn())
-                    state_manager.set_variable(Variables.currentOutValues, readCurrentOut())
-                    state_manager.set_variable(Variables.powerLimit, readPowerLimit())
+                    state_manager.set_variable(Variables.currentInValues, readcurrentIn())
+                    state_manager.set_variable(Variables.currentOutValues, readcurrentOut())
+                    state_manager.set_variable(Variables.powerLimit, readpowerLimit())
                                                
                 except:
                     print (" - feil ved skriving til db -xtenderValues")
