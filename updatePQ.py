@@ -36,8 +36,8 @@ async def main():
         #readContactors()
         print(readBattery())
         readXtenders()
-        readCurrentIn()
-        readCurrentOut()
+        readcurrentIn()
+        readcurrentOut()
         readPowerLimit()
         while True:
             try:
