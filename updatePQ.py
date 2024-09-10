@@ -38,7 +38,7 @@ async def main():
         readXtenders()
         readcurrentIn()
         readcurrentOut()
-        readPowerLimit()
+        readpowerLimit()
         while True:
             try:
                 tidStart = time.time()
