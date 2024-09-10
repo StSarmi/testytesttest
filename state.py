@@ -2,19 +2,21 @@ import redis
 from enum import Enum
 
 class Variables(Enum):
-    batteryValues = 11               # "Battery JSON string"
-    xtenderValues = 12               # "Xtender JSON string"
-    powerInValues = 13               # "powerIn JSON string"
-    powerOutValues = 14              # "powerOut JSON string"
-    currentInValues = 15             # "currentIn JSON string"
-    contactorValues = 16             # "contactors JSON string"
-
-    XT_Imax = 17                     # "powerLimit [%d A]"
-    XT_IL1max = 18                   # "Imax L1 [%d A]"
-    XT_IL2max = 19                   # "Imax L2 [%d A]"
+    batteryValues = 11              # "Battery JSON string"
+    xtenderValues = 12              # "Xtender JSON string"
+    powerLimit = 13                 # "powerLimit JSON string"
+    currentOutValues = 14           # "currentOut JSON string"
+    currentInValues = 15            # "currentIn JSON string"
+    contactorValues = 16            # "contactors JSON string"
+    
+    XT_Imax = 17                    # "powerLimit [%d A]"
+    XT_IL1max = 18                  # "Imax L1 [%d A]"
+    XT_IL2max = 19                  # "Imax L2 [%d A]"
+    XT_IL3max = 51                  # "Imax L2 [%d A]" - manglet
     XT_Imaxtarget = 20              # "Imax target [%d A]"
     XT_targetL1 = 21                # "ImaxL1 target [%d A]"
     XT_targetL2 = 22                # "ImaxL2 target [%d A]"
+    XT_targetL3 = 52                # "ImaxL3 target [%d A]" - manglet
 
     XT1transfer = 23                # "XT#1 in transfer"
     XT2transfer = 24                # "XT#2 in transfer"

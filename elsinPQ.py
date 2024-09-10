@@ -37,34 +37,35 @@ sys.path.append("/home/openhabian/.local/lib/python2.7/site-packages")
 import socket, select, struct, serial, time, re, sys, os, binascii, flask
 #from studerCtrl import levelOnly, int32Type, floatType, boolType, enumType, writeList
 #import studerCtrl       # henter levelOnly, Int32Type, floatType, boolType, enumType, writeList, specialBool, acceptScada, floatLength og mode
-from studerCtrlv2 import parameterId as userInfo, readparameterId as readUserInfo
-from studerCtrlv2 import makeProperty, parameterId, readparameterId, checkMode
+from studerCtrlv2 import parameterId as userInfo, tsReadparameterId as readUserInfo
+#from studerCtrlv2 import makeProperty, parameterId, readparameterId, checkMode
 from scomFrame3 import checksum, bytearray_to_string, string_to_bytearray
 #from modbusClient import holdingReg, coil
 #from readStatus import readTransfer 
+usbport =  "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AK05D98J-if00-port0"   # kun en usbport siden det leveres som enhetlig system
 
 # global variables for use when illegal values are read. LastBatterypower should not be used too many times before an alerm is issued!! 
-lastBatteryvoltage	= 'NA'
-lastBatterycurrent 	= 'NA'
-lastBatterypower 	= 'NA'
-lastBatterySoC		= 'NA'
-lastBatterytemp		= 'NA'
-lastBatterySoH 		= 'NA'
-lastV1Out			= 'NA'
-lastV2Out			= 'NA'
-lastV3Out			= 'NA'
-lastOutFreq			= 'NA'
-lastPowerin			= 'NA'
-lastPowerin1		= 'NA'
-lastPowerin2		= 'NA'
-lastPowerin3		= 'NA'
-lastPowerout		= 'NA'
-lastCurrentInL1		= 'NA'
-lastCurrentInL2		= 'NA'
-lastCurrentInL3		= 'NA'
-lastCurrentOutL1	= 'NA'
-lastCurrentOutL2	= 'NA'
-lastCurrentOutL3	= 'NA'
+lastBatteryvoltage	= None
+lastBatterycurrent 	= None
+lastBatterypower 	= None
+lastBatterySoC		= None
+lastBatterytemp		= None
+lastBatterySoH 		= None
+lastV1Out			= None
+lastV2Out			= None
+lastV3Out			= None
+lastOutFreq			= None
+lastPowerin			= None
+lastPowerin1		= None
+lastPowerin2		= None
+lastPowerin3		= None
+lastPowerout		= None
+lastCurrentInL1		= None
+lastCurrentInL2		= None
+lastCurrentInL3		= None
+lastCurrentOutL1	= None
+lastCurrentOutL2	= None
+lastCurrentOutL3	= None
 
 
 floatLength = 89	#	a float response is read as 89 hex characters (30 bytes take 2 hex digits + comma, last value lack comma )
@@ -97,60 +98,60 @@ def readbatteryValues():
 
 	try:	#read batteryTemp
 		frameInfo = userInfo(0,7029)            # make a frame format, 7029 is battery temperature via CAN
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the parameter
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the parameter
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			batteryTemp = struct.unpack('f', str(value_bytearray))[0]
+			batteryTemp = struct.unpack('f', value_bytearray)[0]
 			if ((batteryTemp > 70) or (batteryTemp < -20)): # settings prevent other values
-				batteryTemp = 'Unavailable'	# oppress impossible values	except:
+				batteryTemp = None	# oppress impossible values	except:
 			lastBatterytemp = batteryTemp
 	except:
 		batteryTemp = lastBatterytemp
 
 	try:	# read batteryVoltage
 		frameInfo = userInfo(0,7030)            # make a frame format, 7032 is minute avg battery voltage via CAN
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the parameter
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the parameter
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			batteryVoltage = struct.unpack('f', str(value_bytearray))[0]
+			batteryVoltage = struct.unpack('f', value_bytearray)[0]
 			if ((batteryVoltage > 70) or (batteryVoltage < 40)): # settings prevent higher values
-				batteryVoltage = 'Unavailable'	# oppress impossible values
+				batteryVoltage = None	# oppress impossible values
 			lastBatteryvoltage = batteryVoltage
 	except:
 		batteryVoltage = lastBatteryvoltage
 
 	try:	# read batteryCurrent
 		frameInfo = userInfo(0,7031)            # make a frame format, 7031 is minute avg battery current via CAN
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the parameter
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the parameter
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			batteryCurrent = struct.unpack('f', str(value_bytearray))[0]
+			batteryCurrent = struct.unpack('f', value_bytearray)[0]
 			if ((batteryCurrent > 2000) or (batteryCurrent < -2000)): # settings and fuses prevent higher values
-				batteryCurrent = 'Unavailable'	# oppress impossible values
+				batteryCurrent = None	# oppress impossible values
 			lastBatterycurrent=batteryCurrent
 	except:
 		batteryCurrent = lastBatterycurrent
 	
 	try:	# read batterySoC
 		frameInfo = userInfo(0,7032)            # make a frame format, 7030 is minute avg battery SoC via CAN
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the parameter
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the parameter
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			batterySoC = struct.unpack('f', str(value_bytearray))[0]
+			batterySoC = struct.unpack('f', value_bytearray)[0]
 			if ((batterySoC > 100) or (batterySoC < 0)): # settings prevent other values
-				batterySoc = 'Unavailable'	# oppress impossible values	
+				batterySoc = None	# oppress impossible values	
 			lastBatterySoC = batterySoC
 	except:
 		batterySoc = lastBatterySoC
 
 	try:	# read batterySoH
 		frameInfo = userInfo(0,7057)            # make a frame format, 7057 is battery SoH via CAN
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the parameter
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the parameter
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			batterySoH = struct.unpack('f', str(value_bytearray))[0]
+			batterySoH = struct.unpack('f', value_bytearray)[0]
 			if ((batterySoH > 100) or (batterySoH < 20)): # settings prevent other values
-				batterySoH = 'Unavailable'	# oppress impossible values	except:
+				batterySoH = None	# oppress impossible values	except:
 			lastBatterySoH = batterySoH
 	except:
 		batterySoH = lastBatterySoH
@@ -176,58 +177,58 @@ def xtenders():
 
 	try:	# check if Xtenders are ON or OFF
 		frameInfo = userInfo(0,3049)            # make a frame format, 3049 is parameter to read Xtender status
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		value_bytearray = string_to_bytearray(data)[23:25]  # enum response
-		xtStatus = struct.unpack('>H', str(value_bytearray))[0]
+		xtStatus = struct.unpack('>H', value_bytearray)[0]
 	except:
-		xtStatus = 'Unavailable'
+		xtStatus = None
 
 	try:	# read acOutFreq, in and out frequency always equal when transfer is closed
 		frameInfo = userInfo(1,3110)            # make a frame format, 3110 is parameter for avg ac input frequency from Xtender
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			AcOutFreq = struct.unpack('<f', str(value_bytearray))[0]
+			AcOutFreq = struct.unpack('<f', value_bytearray)[0]
 			if ((AcOutFreq > 60) or (AcOutFreq < 40)): #Do not believe values outside +/- 10 Hz
-				AcOutFreq = 'Unavailable'		
+				AcOutFreq = None		
 			lastOutFreq = AcOutFreq
 	except:
 		AcOutFreq = lastOutFreq					
 
 	try:	# read acOutV1, in and out voltage always equal with transfer closed
 		frameInfo = userInfo(1,3113)            # make a frame format, 3113 is avg ac input voltage to Xtender
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			AcOutV1 = struct.unpack('<f', str(value_bytearray))[0]
+			AcOutV1 = struct.unpack('<f', value_bytearray)[0]
 			if ((AcOutV1 > 260) or (AcOutV1 < 0)): #Do not believe values below 100V
-				AcOutV1 = 'Unavailable'	# Studer uses 1 - 3 V as 'no output voltage'
+				AcOutV1 = None	# Studer uses 1 - 3 V as 'no output voltage'
 			lastV1Out = AcOutV1
 	except:
 		AcOutV1 = lastV1Out
 
 	try:	# read acOutV2, in and out voltage always equal with transfer closed
 		frameInfo = userInfo(2,3113)            # make a frame format, 3113 is avg ac input voltage to Xtender
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			AcOutV2 = struct.unpack('<f', str(value_bytearray))[0]
+			AcOutV2 = struct.unpack('<f', value_bytearray)[0]
 			if ((AcOutV2 > 260) or (AcOutV2 < 0)): #Do not believe values below 100V 
-				AcOutV2 = 'Unavailable'	# Studer uses 1 - 3 V as 'no output voltage'
+				AcOutV2 = None	# Studer uses 1 - 3 V as 'no output voltage'
 			lastV2Out = AcOutV2
 	except:
 		AcOutV2 = lastV2Out
 
 	try:	# read acOutV3, in and out voltage always equal with transfer closed
 		frameInfo = userInfo(3,3113)            # make a frame format, 3113 is avg ac input voltage to Xtender
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			AcOutV3 = struct.unpack('<f', str(value_bytearray))[0]
+			AcOutV3 = struct.unpack('<f', value_bytearray)[0]
 			if ((AcOutV3 > 260) or (AcOutV3 < 0)): # Do not believe values below 100V 
-				AcOutV3 = 'Unavailable'	# Studer uses 1 - 3 V as 'no output voltage'
+				AcOutV3 = None	# Studer uses 1 - 3 V as 'no output voltage'
 		else:
-			AcOutV3 = 0
+			AcOutV3 = None
 	except:
 		AcOutV3 = lastV3Out
 
@@ -237,12 +238,45 @@ def xtenders():
 
 @app.route('/contactors')
 def contactors():
-        try:
-            contactorValue = {"XT1transfer": readTransfer(1),"XT2transfer": readTransfer(2)}
-        except:
-            contactorValue = []
-        return '{"unit":"Xtender", "XT1transfer":'+str(readTransfer(1))+', "XT2transfer":'+str(readTransfer(2))+'}'
-        #return  (json.dumps(contactorValue))
+	# parameter is ENUM
+    xTransfer1 = None
+    xTransfer2 = None
+    xTransfer3 = None
+    try:
+        frameInfo = userInfo(1,3020)            			# make a frame format, 3020 is parameter to read transfer status
+        data1 = readUserInfo(frameInfo, usbport)          	# uses frame format to actually read
+        if (len(data1) == 83): 
+            value_bytearray = string_to_bytearray(data1)[23:25]  # enum response
+            test1 = struct.unpack('>H', value_bytearray)[0]
+            if (test1 < 2): xTransfer1 = test1
+    except:
+        pass
+    try:
+        frameInfo = userInfo(2,3020)            			# make a frame format, 3020 is parameter to read transfer status
+        data2 = readUserInfo(frameInfo, usbport)          	# uses frame format to actually read
+        if (len(data2) == 83): 
+            value_bytearray = string_to_bytearray(data2)[23:25]  # enum response
+            test2 = struct.unpack('>H', value_bytearray)[0]
+            if (test2 < 2): xTransfer2 = test2
+    except:
+        pass
+    
+    try:
+        frameInfo = userInfo(3,3020)            			# make a frame format, 3020 is parameter to read transfer status
+        data3 = readUserInfo(frameInfo, usbport)          	# uses frame format to actually read
+        if (len(data3) == 83): 
+            value_bytearray = string_to_bytearray(data3)[23:25]  # enum response
+            test3 = struct.unpack('>H', value_bytearray)[0]
+            if (test3 < 2): xTransfer3 = test3
+    except:
+        pass
+
+    try:
+        contactorValue = '{"unit":"Xtender", "XT1transfer":'+str(xTransfer1)+',"XT2transfer":'+str(xTransfer2)+',"XT3transfer":'+str(xTransfer3)+'}'
+    except:
+        contactorValue = []
+    return (contactorValue)
+
 
 
 @app.route('/sxtStatus')
@@ -251,11 +285,11 @@ def sxtStatus():
 
 	try:
 		frameInfo = userInfo(0,3049)            # make a frame format, 3049 is parameter to read Xtender status
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		value_bytearray = string_to_bytearray(data)[23:25]  # enum response
-		xtStatus = struct.unpack('>H', str(value_bytearray))[0]
+		xtStatus = struct.unpack('>H', value_bytearray)[0]
 	except:
-		xtStatus = 'Unavailable'
+		xtStatus = None
 	return '{"unit":"Xtender", "sxtStatus":'+str(xtStatus)+'}'
 
 
@@ -264,7 +298,7 @@ def sxtTime():
 	try:
 		realTime=time.strftime("%Y:%m:%d %H:%M:%S")
 	except:
-		realTime = 'Unavailable'
+		realTime = None
 	return '{"unit":"NTP:", "Time":'+str(realTime)+'}'
 
 
@@ -274,11 +308,11 @@ def sxtON():
 	response = readparameterId(data)
 	try:
 		frameInfo = userInfo(0,3049)            # make a frame format, 3049 is parameter to read Xtender status
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		value_bytearray = string_to_bytearray(data)[23:25]  # enum response
-		xtStatus = struct.unpack('>H', str(value_bytearray))[0]
+		xtStatus = struct.unpack('>H', value_bytearray)[0]
 	except:
-		xtStatus = 'Unavailable'
+		xtStatus = None
 	return '{"unit":"Xtender", "sxtStatus":'+str(xtStatus)+'}'
 
 @app.route('/sxtOFF')
@@ -287,11 +321,11 @@ def sxtOFF():
 	response = readparameterId(data)
 	try:
 		frameInfo = userInfo(0,3049)            # make a frame format, 3049 is parameter to read Xtender status
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		value_bytearray = string_to_bytearray(data)[23:25]  # enum response
-		xtStatus = struct.unpack('>H', str(value_bytearray))[0]
+		xtStatus = struct.unpack('>H', value_bytearray)[0]
 	except:
-		xtStatus = 'Unavailable'
+		xtStatus = None
 	return '{"unit":"Xtender", "sxtStatus":'+str(xtStatus)+'}'
 
 
@@ -306,37 +340,37 @@ def readcurrentOut():
 	
 	try:
 		frameInfo = userInfo(1,3022)            # make a frame format, 3022 is load current 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			currentOutL1 = struct.unpack('f', str(value_bytearray))[0]
+			currentOutL1 = struct.unpack('f', value_bytearray)[0]
 			lastCurrentOutL1 = currentOutL1
 		else:
-			currentOutL1 = 0
+			currentOutL1 = None
 	except:
 		error=1
 
 	try:
 		frameInfo = userInfo(2,3022)            # make a frame format, 3115 is max current from grid last minute 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			currentOutL2 = struct.unpack('f', str(value_bytearray))[0]
+			currentOutL2 = struct.unpack('f', value_bytearray)[0]
 			lastCurrentOutL2 = currentOutL2
 		else:
-			currentOutL2 = 0
+			currentOutL2 = None
 	except:
 		error=error+2
 
 	try:
 		frameInfo = userInfo(3,3022)            # make a frame format, 3115 is max current from grid last minute 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			currentOutL3 = struct.unpack('f', str(value_bytearray))[0]
+			currentOutL3 = struct.unpack('f', value_bytearray)[0]
 			lastCurrentOutL3 = currentOutL3
 		else:
-			currentOutL3 = 0
+			currentOutL3 = None
 	except:
 		error=error+3
 	
@@ -353,37 +387,37 @@ def readcurrentIn():
 	
 	try:
 		frameInfo = userInfo(1,3012)            # make a frame format, 3115 is max current from grid last minute 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			currentInL1 = struct.unpack('f', str(value_bytearray))[0]
+			currentInL1 = struct.unpack('f', value_bytearray)[0]
 			lastCurrentInL1 = currentInL1
 		else:
-			currentInL1 = 0
+			currentInL1 = None
 	except:
 		error=1
 
 	try:
 		frameInfo = userInfo(2,3012)            # make a frame format, 3115 is max current from grid last minute 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			currentInL2 = struct.unpack('f', str(value_bytearray))[0]
+			currentInL2 = struct.unpack('f', value_bytearray)[0]
 			lastCurrentInL2 = currentInL2
 		else:
-			currentInL2 = 0
+			currentInL2 = None
 	except:
 		error=error+2
 
 	try:
 		frameInfo = userInfo(3,3012)            # make a frame format, 3115 is max current from grid last minute 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			currentInL3 = struct.unpack('f', str(value_bytearray))[0]
+			currentInL3 = struct.unpack('f', value_bytearray)[0]
 			lastCurrentInL3 = currentInL3
 		else:
-			currentInL3 = 0
+			currentInL3 = None
 	except:
 		error=error+3
 	
@@ -402,40 +436,40 @@ def readpowerIn():
 	
 	try:
 		frameInfo = userInfo(1,3119)            # make a frame format, 3119 is avg power from grid 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			invPowerIn1 = struct.unpack('f', str(value_bytearray))[0]
+			invPowerIn1 = struct.unpack('f', value_bytearray)[0]
 			#print invPowerOut
 			#if ((invPowerOut > 20)|(invPowerOut < 0)): # settings prevent higher values
-			#	invPowerOut = 'Unavailable'	# oppress impossible values
+			#	invPowerOut = None	# oppress impossible values
 			lastPowerin = invPowerIn1
 	except:
 		error=1
 	
 	try:
 		frameInfo = userInfo(2,3119)            # make a frame format, 3119 is avg power from grid  
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			invPowerIn2 = struct.unpack('f', str(value_bytearray))[0]
+			invPowerIn2 = struct.unpack('f', value_bytearray)[0]
 			#if ((invPowerOut > 20)|(invPowerOut < 0)): # settings prevent higher values
-			#invPowerOut = 'Unavailable'	# oppress impossible values
+			#invPowerOut = None	# oppress impossible values
 			lastPowerin = lastPowerin+invPowerIn2
 	except:
 		error=2+error
 	
 	try:
 		frameInfo = userInfo(3,3119)            # make a frame format, 3119 is avg power from grid 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			invPowerIn3 = struct.unpack('f', str(value_bytearray))[0]
+			invPowerIn3 = struct.unpack('f', value_bytearray)[0]
 			#if ((invPowerOut > 20)|(invPowerOut < 0)): # settings prevent higher values
-			#	invPowerOut = 'Unavailable'	# oppress impossible values
+			#	invPowerOut = None	# oppress impossible values
 			lastPowerin = lastPowerin+invPowerIn3	# inverter 1 - 3 is only half the system
 		else:
-			invPowerIn3 = 0
+			invPowerIn3 = None
 	except:
 		error = 3+error
 
@@ -457,25 +491,25 @@ def readpowerOut():
 	error = 0
 	try:
 		frameInfo = userInfo(1,3101)            # make a frame format, 3101 is avg power to load.
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			invPowerOut1 = struct.unpack('f', str(value_bytearray))[0]
+			invPowerOut1 = struct.unpack('f', value_bytearray)[0]
 			#print invPowerOut
 			#if ((invPowerOut > 20)|(invPowerOut < 0)): # settings prevent higher values
-			#	invPowerOut = 'Unavailable'	# oppress impossible values
+			#	invPowerOut = None	# oppress impossible values
 			lastPowerout = invPowerOut1
 	except:
 		error=1
 	
 	try:
 		frameInfo = userInfo(2,3101)            # make a frame format, 3101 is avg power to load.
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			invPowerOut2 = struct.unpack('f', str(value_bytearray))[0]
+			invPowerOut2 = struct.unpack('f', value_bytearray)[0]
 			#if ((invPowerOut > 20)|(invPowerOut < 0)): # settings prevent higher values
-			#invPowerOut = 'Unavailable'	# oppress impossible values
+			#invPowerOut = None	# oppress impossible values
 			lastPowerout = lastPowerout+invPowerOut2
 	except:
 		error=2+error
@@ -483,15 +517,15 @@ def readpowerOut():
 
 	try:
 		frameInfo = userInfo(3,3101)            # make a frame format, 3101 is avg power to load. 
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			invPowerOut3 = struct.unpack('f', str(value_bytearray))[0]
+			invPowerOut3 = struct.unpack('f', value_bytearray)[0]
 			#if ((invPowerOut > 20)|(invPowerOut < 0)): # settings prevent higher values
-			#	invPowerOut = 'Unavailable'	# oppress impossible values
+			#	invPowerOut = None	# oppress impossible values
 			lastPowerout = lastPowerout+invPowerOut3	# inverter 1 - 3 is only half the system
 		else:
-			invPowerOut3 = 0
+			invPowerOut3 = None
 	except:
 		error = 3+error
 
@@ -505,41 +539,41 @@ def readpowerOut():
 
 @app.route('/powerLimit')
 def readpowerLimit():
-	powerLimit = 'Unavailable'
-	powerLimitV1 = 'Unavailable'
-	powerLimitV2 = 'Unavailable'
+	powerLimit = None
+	powerLimitV1 = None
+	powerLimitV2 = None
 	try:
 		frameInfo = userInfo(0,3017)            # make a frame format, 3017 is read parameter for max current from grid
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		if (len(data) == floatLength):
 			value_bytearray = string_to_bytearray(data)[24:28]  # float response
-			powerLimit = struct.unpack('f', str(value_bytearray))[0]
+			powerLimit = struct.unpack('f', value_bytearray)[0]
 			if ((powerLimit > 50)|(powerLimit < 0)): # settings prevent higher values
-				powerLimit = 'Unavailable'	# oppress impossible values
+				powerLimit = None	# oppress impossible values
 	except:
-		powerLimit = 'Unavailable'
+		powerLimit = None
 
 	try:
                 frameInfo = userInfo(1,3017)            # make a frame format, 3017 is read parameter for max current from grid
-                data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+                data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
                 if (len(data) == floatLength):
                         value_bytearray = string_to_bytearray(data)[24:28]  # float response
-                        powerLimitV1 = struct.unpack('f', str(value_bytearray))[0]
+                        powerLimitV1 = struct.unpack('f', value_bytearray)[0]
                         if ((powerLimitV1 > 50)|(powerLimitV1 < 0)): # settings prevent higher values
-                                powerLimit1 = 'Unavailable'      # oppress impossible values
+                                powerLimit1 = None      # oppress impossible values
 	except:
-                powerLimitV1 = 'Unavailable'
+                powerLimitV1 = None
 
 	try:
                 frameInfo = userInfo(2,3017)            # make a frame format, 3017 is read parameter for max current from grid
-                data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+                data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
                 if (len(data) == floatLength):
                         value_bytearray = string_to_bytearray(data)[24:28]  # float response
-                        powerLimitV2 = struct.unpack('f', str(value_bytearray))[0]
+                        powerLimitV2 = struct.unpack('f', value_bytearray)[0]
                         if ((powerLimitV2 > 50)|(powerLimitV2 < 0)): # settings prevent higher values
-                                powerLimitV2 = 'Unavailable'      # oppress impossible values
+                                powerLimitV2 = None      # oppress impossible values
 	except:
-                powerLimitV2 = 'Unavailable'
+                powerLimitV2 = None
 
 	return '{"unit":"Xtender", "powerLimit":'+str(powerLimit)+', "powerLimitV1":'+str(powerLimitV1)+', "powerLimitV2":'+str(powerLimitV2)+'}'
 
@@ -551,41 +585,41 @@ def setImax(value):
 	response = readparameterId(data)
 	try:
 		frameInfo = userInfo(0,3017)            # make a frame format, 1107 is to set max current from grid, 3017 to read
-		data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+		data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
 		value_bytearray = string_to_bytearray(data)[24:28]  # float response
-		Imax = struct.unpack('f', str(value_bytearray))[0]
+		Imax = struct.unpack('f', value_bytearray)[0]
 	except:
-		Imax = 'Unavailable'
+		Imax = None
 	return '{"unit":"Xtenders", "Imax":'+str(Imax)+'}'
 
-@app.route("/setImaxV1 <value>")
-def setImaxV1(value):
+@app.route("/setImax1 <value>")
+def setImax1(value):
         print (value)
         parameterValue = float(value)
         data = parameterId(int(1), int(1107), 'write', 'float', parameterValue)
         response = readparameterId(data)
         try:
                 frameInfo = userInfo(0,3017)            # make a frame format, 1107 is to set max current from grid, 3017 to read
-                data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+                data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
                 value_bytearray = string_to_bytearray(data)[24:28]  # float response
-                ImaxV1 = struct.unpack('f', str(value_bytearray))[0]
+                ImaxV1 = struct.unpack('f', value_bytearray)[0]
         except:
-                ImaxV1 = 'Unavailable'
+                ImaxV1 = None
         return '{"unit":"Xtenders", "ImaxV1":'+str(ImaxV1)+'}'
 
-@app.route("/setImaxV2 <value>")
-def setImaxV2(value):
+@app.route("/setImax2 <value>")
+def setImax2(value):
         print (value)
         parameterValue = float(value)
         data = parameterId(int(2), int(1107), 'write', 'float', parameterValue)
         response = readparameterId(data)
         try:
                 frameInfo = userInfo(0,3017)            # make a frame format, 1107 is to set max current from grid, 3017 to read
-                data = readUserInfo(frameInfo)          # uses frame format to actually read the studer charger
+                data = readUserInfo(frameInfo, usbport)          # uses frame format to actually read the studer charger
                 value_bytearray = string_to_bytearray(data)[24:28]  # float response
-                ImaxV2 = struct.unpack('f', str(value_bytearray))[0]
+                ImaxV2 = struct.unpack('f', value_bytearray)[0]
         except:
-                ImaxV2 = 'Unavailable'
+                ImaxV2 = None
         return '{"unit":"Xtenders", "ImaxV2":'+str(ImaxV2)+'}'
 
 
