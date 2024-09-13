@@ -19,7 +19,7 @@ import asyncio, time
 import sys,json
 #sys.path.append("/home/openhabian/.local/lib/python2.7/site-packages")
 
-from elsinPQ import readbatteryValues as readBattery, xtenders as readXtenders, contactors as readContactors, readcurrentIn, readcurrentOut, readpowerLimit
+from elsinPQ import readbatteryValues as readBattery, xtenders as readXtenders, contactors as readContactors, readcurrentIn, readcurrentOut, readpowerLimit, setImax
 from state import Variables, State
 
 async def main():
@@ -36,6 +36,7 @@ async def main():
                     currentIn = readcurrentIn()
                     currentOut = readcurrentOut()
                     powerLimit = readpowerLimit()
+                    setImax = setImax
                     #print("\r\n\t", battery,"\r\n\t", xtenders,"\r\n\t",currentIn,"\r\n\t",currentOut,"\r\n\t",powerLimit)
                     #print(f'\r\n\t  - Avlesning og lagring av verdiene tok {time.time()-tidStart:.2f} sekunder\r\n')
                     state_manager.set_variable(Variables.contactorValues, contactors)
@@ -44,7 +45,8 @@ async def main():
                     state_manager.set_variable(Variables.currentInValues, currentIn)
                     state_manager.set_variable(Variables.currentOutValues, currentOut)
                     state_manager.set_variable(Variables.powerLimit, powerLimit)
-                    print("\r\n\t",contactors,"\r\n\t",battery,"\r\n\t", xtenders,"\r\n\t",currentIn,"\r\n\t",currentOut,"\r\n\t",powerLimit)
+                    state_manager.set_variable(Variables.XT_Imax, setImax)
+                    print("\r\n\t",contactors,"\r\n\t",battery,"\r\n\t", xtenders,"\r\n\t",currentIn,"\r\n\t",currentOut,"\r\n\t",powerLimit,"\r\n\t",setImax)
                     print(f'\r\n\t  - Avlesning og lagring av verdiene tok {time.time()-tidStart:.2f} sekunder\r\n')
                 except:
                     print (" - feil ved skriving til db -xtenderValues")
